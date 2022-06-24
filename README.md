@@ -1,4 +1,4 @@
-# Trabajo Practivo Final
+# Trabajo Practico Final
 ### Introduccion a la Programacion Orientada a Objetos
 
 **Enunciado**
