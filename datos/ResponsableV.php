@@ -160,11 +160,18 @@ class ResponsableV
     {
         $bd = new Database();
         $resp = false;
-        $queryInsertar = "INSERT INTO responsable(rnumeroempleado, rnumerolicencia, rnombre, rapellido) 
+        if ($this->getNumeroEmpleado() == null) {
+            $queryInsertar = "INSERT INTO responsable(rnumerolicencia, rnombre, rapellido) 
+                    VALUES (" . $this->getLicencia() . ",'" .
+                $this->getNombre() . "','" .
+                $this->getApellido() . "')";
+        } else {
+            $queryInsertar = "INSERT INTO responsable(rnumeroempleado, rnumerolicencia, rnombre, rapellido) 
                     VALUES (" . $this->getNumeroEmpleado() . ",'" .
-            $this->getLicencia() . "','" .
-            $this->getNombre() . "','" .
-            $this->getApellido() . "')";
+                $this->getLicencia() . "','" .
+                $this->getNombre() . "','" .
+                $this->getApellido() . "')";
+        }
         if ($bd->Start()) {
             if ($bd->ExecQuery($queryInsertar)) {
                 $resp = true;
@@ -181,15 +188,24 @@ class ResponsableV
      * Ejecuta los cambios en la tabla de responsable.
      * @return bool
      */
-    public function Modificar()
+    public function Modificar($idAntiguo = "")
     {
         $resp = false;
         $bd = new Database();
-        $queryModifica = "UPDATE responsable 
+        if ($idAntiguo == null) {
+            $queryModifica = "UPDATE responsable 
             SET rnombre = '" . $this->getNombre() .
-            "', rapellido = '" . $this->getApellido() .
-            "', rnumerolicencia = '" . $this->getLicencia() .
-            "' WHERE rnumeroempleado = " . $this->getNumeroEmpleado();
+                "', rapellido = '" . $this->getApellido() .
+                "', rnumerolicencia = '" . $this->getLicencia() .
+                "' WHERE rnumeroempleado = " . $this->getNumeroEmpleado();
+        } else {
+            $queryModifica = "UPDATE responsable 
+            SET rnumeroempleado = " . $this->getNumeroEmpleado() .
+                ", rnombre = '" . $this->getNombre() .
+                "', rapellido = '" . $this->getApellido() .
+                "', rnumerolicencia = '" . $this->getLicencia() .
+                "' WHERE rnumeroempleado = " . $idAntiguo;
+        }
         if ($bd->Start()) {
             if ($bd->ExecQuery($queryModifica)) {
                 $resp =  true;
@@ -206,12 +222,12 @@ class ResponsableV
      * Elimina un responsable de la BD.
      * @return bool
      */
-    public function Eliminar($condicion)
+    public function Eliminar()
     {
         $bd = new Database();
         $resp = false;
-        $queryBorrar = "DELETE FROM persona WHERE " . $condicion;
         if ($bd->Start()) {
+            $queryBorrar = "DELETE FROM responsable WHERE rnumeroempleado = " . $this->getNumeroEmpleado();
             if ($bd->ExecQuery($queryBorrar)) {
                 $resp =  true;
             } else {
@@ -229,6 +245,6 @@ class ResponsableV
         return "\n\tNumero Empleado: " . $this->getNumeroEmpleado() .
             "\n\tNumero Licencia: " . $this->getlicencia() .
             "\n\tNombre: " . $this->getNombre() .
-            "\n\tApellido: " . $this->getApellido();
+            "\n\tApellido: " . $this->getApellido() . "\n";
     }
 }

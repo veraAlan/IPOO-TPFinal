@@ -165,14 +165,22 @@ class Empresa
      * Ejecuta los cambios en la tabla de empresa.
      * @return bool
      */
-    public function Modificar()
+    public function Modificar($idAntiguo = "")
     {
         $resp = false;
         $bd = new Database();
-        $queryModifica = "UPDATE empresa 
+        if ($idAntiguo == null) {
+            $queryModifica = "UPDATE empresa 
             SET enombre = '" . $this->getEnombre() .
-            "', edireccion = '" . $this->getEdireccion() .
-            "' WHERE idempresa = " . $this->getIdempresa();
+                "', edireccion = '" . $this->getEdireccion() .
+                "' WHERE idempresa = " . $$this->getIdempresa();
+        } else {
+            $queryModifica = "UPDATE empresa 
+            SET idempresa = " . $this->getIdempresa() .
+                ", enombre = '" . $this->getEnombre() .
+                "', edireccion = '" . $this->getEdireccion() .
+                "' WHERE idempresa = " . $idAntiguo;
+        }
         if ($bd->Start()) {
             if ($bd->ExecQuery($queryModifica)) {
                 $resp =  true;

@@ -17,15 +17,15 @@ class Viaje
      */
     public function __construct()
     {
-        $this->idviaje = 0;
-        $this->vdestino = "";
-        $this->vcantmaxpasajeros = 0;
-        $this->idempresa = 0;
-        $this->rnumeroempleado = "";
-        $this->vimporte = 0;
-        $this->tipoAsiento = "";
-        $this->idayvuelta = "";
-        $this->pasajeros = [];
+        $this->idviaje;
+        $this->vdestino;
+        $this->vcantmaxpasajeros;
+        $this->idempresa;
+        $this->rnumeroempleado;
+        $this->vimporte;
+        $this->tipoAsiento;
+        $this->idayvuelta;
+        $this->pasajeros;
         $this->responsable;
     }
 
@@ -42,7 +42,7 @@ class Viaje
 
     public function setCantMaxPasajeros($cantidad)
     {
-        $this->vcantMaxPasajeros = $cantidad;
+        $this->vcantmaxpasajeros = $cantidad;
     }
 
     public function setIdEmpresa($id)
@@ -260,8 +260,9 @@ class Viaje
                 $this->getTipoAsiento() .  "','" .
                 $this->getIdaYVuelta() .  "')";
         } else {
-            $queryInsertar = "INSERT INTO viaje(vdestino, vcantmaxpasajeros, idempresa, rnumeroempleado, vimporte, tipoAsiento, idayvuelta)
-                    VALUES ('" . $this->getDestino() . "','" .
+            $queryInsertar = "INSERT INTO viaje(idviaje, vdestino, vcantmaxpasajeros, idempresa, rnumeroempleado, vimporte, tipoAsiento, idayvuelta)
+                    VALUES ('" . $this->getIdViaje() . "','" .
+                $this->getDestino() . "','" .
                 $this->getCantMaxPasajeros() .  "','" .
                 $this->getIdEmpresa() .  "','" .
                 $this->getNumeroEmpleado() .  "','" .
@@ -285,19 +286,33 @@ class Viaje
      * Ejecuta los cambios en la tabla de viajes.
      * @return bool
      */
-    public function Modificar()
+    public function Modificar($idAntiguo = "")
     {
         $resp = false;
         $bd = new Database();
-        $queryModifica = "UPDATE viaje 
+        if ($idAntiguo == null) {
+            $queryModifica = "UPDATE viaje 
             SET vdestino = '" . $this->getDestino() .
-            "', vcantmaxpasajeros = '" . $this->getCantMaxPasajeros() .
-            "', idempresa = '" . $this->getIdEmpresa() .
-            "', rnumeroempleado = '" . $this->getNumeroEmpleado() .
-            "', vimporte = '" . $this->getImporte() .
-            "', tipoAsiento = '" . $this->getTipoAsiento() .
-            "', idayvuelta = '" . $this->getIdaYVuelta() .
-            "' WHERE idviaje = " . $this->getIdViaje();
+                "', vcantmaxpasajeros = '" . $this->getCantMaxPasajeros() .
+                "', idempresa = '" . $this->getIdEmpresa() .
+                "', rnumeroempleado = '" . $this->getNumeroEmpleado() .
+                "', vimporte = '" . $this->getImporte() .
+                "', tipoAsiento = '" . $this->getTipoAsiento() .
+                "', idayvuelta = '" . $this->getIdaYVuelta() .
+                "' WHERE idviaje = " . $this->getIdViaje();
+        } else {
+            $queryModifica = "";
+            $queryModifica = "UPDATE viaje 
+            SET idviaje = '" . $this->getIdViaje() .
+                "', vdestino = '" . $this->getDestino() .
+                "', vcantmaxpasajeros = '" . $this->getCantMaxPasajeros() .
+                "', idempresa = '" . $this->getIdEmpresa() .
+                "', rnumeroempleado = '" . $this->getNumeroEmpleado() .
+                "', vimporte = '" . $this->getImporte() .
+                "', tipoAsiento = '" . $this->getTipoAsiento() .
+                "', idayvuelta = '" . $this->getIdaYVuelta() .
+                "' WHERE idviaje = " . $idAntiguo;
+        }
         if ($bd->Start()) {
             if ($bd->ExecQuery($queryModifica)) {
                 $resp =  true;

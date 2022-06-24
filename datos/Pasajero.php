@@ -118,6 +118,7 @@ class Pasajero
                     $this->setNombre($row2['pnombre']);
                     $this->setApellido($row2['papellido']);
                     $this->setTelefono($row2['ptelefono']);
+                    $this->setIdViaje($row2['idviaje']);
                     $resp = true;
                 }
             } else {
@@ -175,12 +176,13 @@ class Pasajero
     {
         $bd = new Database();
         $resp = false;
-        $queryInsertar = "INSERT INTO pasajero(rdocumento, pnombre, papellido, ptelefono, idviaje) 
-                    VALUES (" . $this->getDocumento() . ",'" . $this->getNombre() . "','" .
-            $this->getApellido() . "','" .
-            $this->getTelefono() . "','" .
-            $this->getIdViaje() . "')";
         if ($bd->Start()) {
+            $queryInsertar = "INSERT INTO pasajero(rdocumento, pnombre, papellido, ptelefono, idviaje) 
+                    VALUES ('" . $this->getDocumento() . "','" .
+                $this->getNombre() . "','" .
+                $this->getApellido() . "','" .
+                $this->getTelefono() . "','" .
+                $this->getIdViaje() . "')";
             if ($bd->ExecQuery($queryInsertar)) {
                 $resp = true;
             } else {
@@ -196,15 +198,29 @@ class Pasajero
      * Ejecuta los cambios en la tabla de pasajero.
      * @return bool
      */
-    public function Modificar()
+    public function Modificar($dniAntiguo = "", $condicion = "")
     {
         $resp = false;
         $bd = new Database();
-        $queryModifica = "UPDATE pasajero 
+        if ($dniAntiguo == null) {
+            $queryModifica = "UPDATE pasajero 
             SET pnombre = '" . $this->getNombre() .
-            "', papellido = '" . $this->getApellido() .
-            "', ptelefono = '" . $this->getTelefono() .
-            "' WHERE rdocumento = " . $this->getDocumento();
+                "', papellido = '" . $this->getApellido() .
+                "', ptelefono = '" . $this->getTelefono() .
+                "' WHERE rdocumento = " . $this->getDocumento();
+        } else {
+            $queryModifica = "UPDATE pasajero 
+            SET rdocumento = " .  $this->getDocumento() .
+                ", pnombre = '" . $this->getNombre() .
+                "', papellido = '" . $this->getApellido() .
+                "', ptelefono = '" . $this->getTelefono() .
+                "' WHERE rdocumento = " . $dniAntiguo;
+        }
+
+        if ($condicion != null) {
+            $queryModifica = $condicion;
+        }
+
         if ($bd->Start()) {
             if ($bd->ExecQuery($queryModifica)) {
                 $resp =  true;
@@ -225,8 +241,8 @@ class Pasajero
     {
         $bd = new Database();
         $resp = false;
-        $queryBorrar = "DELETE FROM persona WHERE rdocumento = " . $this->getDocumento();
         if ($bd->Start()) {
+            $queryBorrar = "DELETE FROM pasajero WHERE rdocumento = " . $this->getDocumento();
             if ($bd->ExecQuery($queryBorrar)) {
                 $resp =  true;
             } else {
@@ -241,10 +257,10 @@ class Pasajero
     // To String
     public function __toString()
     {
-        return "\tNombre: " . $this->getNombre() .
+        return "\n\tNombre: " . $this->getNombre() .
             "\n\tApellido: " . $this->getApellido() .
             "\n\tDNI: " . $this->getDocumento() .
             "\n\tTelefono: " . $this->getTelefono() .
-            "\n\tID Viaje que tomara: " . $this->getIdViaje();
+            "\n\tID Viaje que tomara: " . $this->getIdViaje() . "\n";
     }
 }
