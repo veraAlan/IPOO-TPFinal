@@ -172,25 +172,31 @@ class Viaje
      * @param int $id
      * @return bool
      */
-    public function Buscar($id)
+    public function Buscar($id = "", $destino = "")
     {
         $bd = new Database();
-        $consultaViaje = "SELECT * FROM viaje WHERE idviaje = " . $id;
         $resp = false;
-
+        $consultaViaje = "SELECT * FROM viaje WHERE ";
+        if ($destino == null) {
+            $consultaViaje = $consultaViaje . 'idviaje = ' . $id;
+        } else {
+            $consultaViaje = $consultaViaje . 'vdestino = "' . $destino . '"';
+        }
         if ($bd->Start()) {
-            if ($bd->ExecQuery($consultaViaje)) {
-                if ($row2 = $bd->Register()) {
+            if ($bd->ExecQuery($consultaViaje) && $destino == null) {
+                if ($regEnc = $bd->Register()) {
                     $this->setIdViaje($id);
-                    $this->setDestino($row2['vdestino']);
-                    $this->setCantMaxPasajeros($row2['vcantmaxpasajeros']);
-                    $this->setIdEmpresa($row2['idempresa']);
-                    $this->setNumeroEmpleado($row2['rnumeroempleado']);
-                    $this->setImporte($row2['vimporte']);
-                    $this->setTipoAsiento($row2['tipoAsiento']);
-                    $this->setIdaYVuelta($row2['idayvuelta']);
+                    $this->setDestino($regEnc['vdestino']);
+                    $this->setCantMaxPasajeros($regEnc['vcantmaxpasajeros']);
+                    $this->setIdEmpresa($regEnc['idempresa']);
+                    $this->setNumeroEmpleado($regEnc['rnumeroempleado']);
+                    $this->setImporte($regEnc['vimporte']);
+                    $this->setTipoAsiento($regEnc['tipoAsiento']);
+                    $this->setIdaYVuelta($regEnc['idayvuelta']);
                     $resp = true;
                 }
+            } else if ($bd->ExecQuery($consultaViaje)) {
+                $resp = ($bd->Register() != null);
             } else {
                 $this->setMensajeOp($bd->getError());
             }
@@ -217,16 +223,16 @@ class Viaje
         if ($bd->Start()) {
             if ($bd->ExecQuery($consultaV)) {
                 $arrViaje = array();
-                while ($row2 = $bd->Register()) {
+                while ($regEnc = $bd->Register()) {
 
-                    $idviaje = $row2['idviaje'];
-                    $vdestino = $row2['vdestino'];
-                    $vcantmaxpasajeros = $row2['vcantmaxpasajeros'];
-                    $idempresa = $row2['idempresa'];
-                    $rnumeroempleado = $row2['rnumeroempleado'];
-                    $vimporte = $row2['vimporte'];
-                    $tipoAsiento = $row2['tipoAsiento'];
-                    $idayvuelta = $row2['idayvuelta'];
+                    $idviaje = $regEnc['idviaje'];
+                    $vdestino = $regEnc['vdestino'];
+                    $vcantmaxpasajeros = $regEnc['vcantmaxpasajeros'];
+                    $idempresa = $regEnc['idempresa'];
+                    $rnumeroempleado = $regEnc['rnumeroempleado'];
+                    $vimporte = $regEnc['vimporte'];
+                    $tipoAsiento = $regEnc['tipoAsiento'];
+                    $idayvuelta = $regEnc['idayvuelta'];
 
                     $viaje = new Viaje();
                     $viaje->Cargar($idviaje, $vdestino, $vcantmaxpasajeros, $idempresa, $rnumeroempleado, $vimporte, $tipoAsiento, $idayvuelta);

@@ -5,10 +5,6 @@ include_once '../datos/Viaje.php';
 include_once '../datos/ResponsableV.php';
 include_once '../datos/Pasajero.php';
 
-// TODO ADD functions to add pasajero y responsable.
-// Each have different constraints. Make it so it's only 
-// possible to create if constraints are met.
-
 // Funcion visual de menu
 function menu()
 {
@@ -84,6 +80,7 @@ function modificarEmpresa()
 
     $id = readline("Ingrese el id de la empresa a modificar: ");
     $respuesta = $empresa->Buscar($id);
+
     if ($respuesta) {
         echo "Ingrese los nuevos datos.\n";
         $nuevoid = readline("(Opcional) Id de la empresa: ");
@@ -160,7 +157,6 @@ function mostrarEmpresa()
         }
     }
 }
-// Todo funciona hasta aca.
 
 //Funciones Viaje
 function ingresarViaje()
@@ -180,8 +176,36 @@ function ingresarViaje()
 
     if ($id != null) {
         if (!$viaje->Buscar($id)) {
-            if ($empresa->Buscar($idempresa) && $responsable->Buscar($nempleado)) {
-                $viaje->Cargar($id, $destino, $cantmax, $idempresa, $nempleado, $importe, $tipoAsiento, $idayvuelta);
+            if (!$viaje->Buscar(null, $destino)) {
+                if ($empresa->Buscar($idempresa) && $responsable->Buscar($nempleado)) {
+                    $viaje->Cargar($id, $destino, $cantmax, $idempresa, $nempleado, $importe, $tipoAsiento, $idayvuelta);
+
+                    $respuesta = $viaje->Insertar();
+                    if ($respuesta == true) {
+                        echo "\n\t   El viaje fue ingresado en la BD.\n" .
+                            "\t======================================\n";
+                    } else {
+                        echo $viaje->getMensajeOp();
+                    }
+                } else {
+                    echo "\nNo existe la empresa o responsable a cargo.\n";
+                }
+            } else {
+                echo "\nExiste un viaje al destino.\n";
+            }
+        } else {
+            echo "\nYa existe un viaje con ese ID.\n";
+        }
+    } else {
+        if ($empresa->Buscar($idempresa) && $responsable->Buscar($nempleado)) {
+            if (!$viaje->Buscar(null, $destino)) {
+                $viaje->setDestino($destino);
+                $viaje->setCantMaxPasajeros($cantmax);
+                $viaje->setIdEmpresa($idempresa);
+                $viaje->setNumeroEmpleado($nempleado);
+                $viaje->setImporte($importe);
+                $viaje->setTipoAsiento($tipoAsiento);
+                $viaje->setIdaYVuelta($idayvuelta);
 
                 $respuesta = $viaje->Insertar();
                 if ($respuesta == true) {
@@ -191,27 +215,7 @@ function ingresarViaje()
                     echo $viaje->getMensajeOp();
                 }
             } else {
-                echo "\nNo existe la empresa o responsable a cargo.\n";
-            }
-        } else {
-            echo "\nYa existe un viaje con ese ID.\n";
-        }
-    } else {
-        if ($empresa->Buscar($idempresa) && $responsable->Buscar($nempleado)) {
-            $viaje->setDestino($destino);
-            $viaje->setCantMaxPasajeros($cantmax);
-            $viaje->setIdEmpresa($idempresa);
-            $viaje->setNumeroEmpleado($nempleado);
-            $viaje->setImporte($importe);
-            $viaje->setTipoAsiento($tipoAsiento);
-            $viaje->setIdaYVuelta($idayvuelta);
-
-            $respuesta = $viaje->Insertar();
-            if ($respuesta == true) {
-                echo "\n\t   El viaje fue ingresado en la BD.\n" .
-                    "\t======================================\n";
-            } else {
-                echo $viaje->getMensajeOp();
+                echo "\nExiste un viaje al destino.\n";
             }
         } else {
             echo "\nNo existe la empresa o responsable a cargo.\n";
@@ -222,8 +226,8 @@ function ingresarViaje()
 function modificarViaje()
 {
     $viaje = new Viaje();
-
     $id = readline("Ingrese el id del viaje a modificar: ");
+
     $respuesta = $viaje->Buscar($id);
     if ($respuesta) {
         echo "Ingrese los nuevos datos.\n";
@@ -235,30 +239,33 @@ function modificarViaje()
         $importe = readline("Importe: ");
         $tipoAsiento = readline("Tipo de asiento (Primera clase o no, semicama o cama): ");
         $idayvuelta = readline("Ida y vuelta? ");
-        if ($nuevoid != "") {
-            $viaje->Cargar($nuevoid, $destino, $cantmax, $idempresa, $nempleado, $importe, $tipoAsiento, $idayvuelta);
+        if (!$viaje->Buscar(null, $destino)) {
+            if ($nuevoid != "") {
+                $viaje->Cargar($nuevoid, $destino, $cantmax, $idempresa, $nempleado, $importe, $tipoAsiento, $idayvuelta);
 
-            $respuesta = $viaje->Insertar();
-            // Actualizando los pasajeros que estan asociados a ese id de viaje.
-            $pasajeros = new Pasajero();
+                $respuesta = $viaje->Insertar();
+                $pasajeros = new Pasajero();
 
-            $pasajeros->Modificar("", "UPDATE pasajero SET idviaje = " . $nuevoid . " WHERE idviaje = " . $id);
-            $respuesta = $viaje->Buscar($id);
-            $respuesta = $viaje->Eliminar();
-            if ($respuesta) {
-                echo "\n\t   El viaje fue modificado correctamente.\n" .
-                    "\t============================================\n";
+                $pasajeros->Modificar("", "UPDATE pasajero SET idviaje = " . $nuevoid . " WHERE idviaje = " . $id);
+                $respuesta = $viaje->Buscar($id);
+                $respuesta = $viaje->Eliminar();
+                if ($respuesta) {
+                    echo "\n\t   El viaje fue modificado correctamente.\n" .
+                        "\t============================================\n";
+                } else {
+                    echo "\nNo se pudo crear el nuevo viaje.\n";
+                }
             } else {
-                echo "\nNo se pudo crear el nuevo viaje.\n";
+                $viaje->setDestino($destino);
+                $viaje->setCantMaxPasajeros($cantmax);
+                $viaje->setIdEmpresa($idempresa);
+                $viaje->setNumeroEmpleado($nempleado);
+                $viaje->setImporte($importe);
+                $viaje->setTipoAsiento($tipoAsiento);
+                $viaje->setIdaYVuelta($idayvuelta);
             }
         } else {
-            $viaje->setDestino($destino);
-            $viaje->setCantMaxPasajeros($cantmax);
-            $viaje->setIdEmpresa($idempresa);
-            $viaje->setNumeroEmpleado($nempleado);
-            $viaje->setImporte($importe);
-            $viaje->setTipoAsiento($tipoAsiento);
-            $viaje->setIdaYVuelta($idayvuelta);
+            echo "\nExiste un viaje al destino.\n";
         }
     } else {
         echo "No se pudo encontrar el viaje con id = " . $id . ".\n";
@@ -313,7 +320,7 @@ function mostrarViaje()
     }
 }
 
-// Funciones Creacion/Modificacion de Responsables y Pasajeros.
+// Funciones Creacion/Modificacion de Responsables y Pasajeros. (Extra)
 // Responsables
 function ingresarResponsable()
 {

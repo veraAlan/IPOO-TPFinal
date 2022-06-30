@@ -173,7 +173,7 @@ class Empresa
             $queryModifica = "UPDATE empresa 
             SET enombre = '" . $this->getEnombre() .
                 "', edireccion = '" . $this->getEdireccion() .
-                "' WHERE idempresa = " . $$this->getIdempresa();
+                "' WHERE idempresa = " . $this->getIdempresa();
         } else {
             $queryModifica = "UPDATE empresa 
             SET idempresa = " . $this->getIdempresa() .
