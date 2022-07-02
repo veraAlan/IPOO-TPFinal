@@ -4,13 +4,12 @@ class Viaje
     private $idviaje;
     private $vdestino;
     private $vcantmaxpasajeros;
-    private $idempresa;
-    private $rnumeroempleado;
+    private $empresa; // Object
+    private $responsable; // Object
     private $vimporte;
     private $tipoAsiento;
     private $idayvuelta;
     private $pasajeros; // Array [Objects]
-    private $responsable; // Object
 
     /**
      * Constructor del objeto Viaje.
@@ -20,13 +19,12 @@ class Viaje
         $this->idviaje;
         $this->vdestino;
         $this->vcantmaxpasajeros;
-        $this->idempresa;
-        $this->rnumeroempleado;
+        $this->empresa;
+        $this->responsable;
         $this->vimporte;
         $this->tipoAsiento;
         $this->idayvuelta;
         $this->pasajeros;
-        $this->responsable;
     }
 
     // Setters
@@ -45,14 +43,14 @@ class Viaje
         $this->vcantmaxpasajeros = $cantidad;
     }
 
-    public function setIdEmpresa($id)
+    public function setEmpresa($empresa)
     {
-        $this->idempresa = $id;
+        $this->empresa = $empresa;
     }
 
-    public function setNumeroEmpleado($numEmpleado)
+    public function setResponsable($empleado)
     {
-        $this->rnumeroempleado = $numEmpleado;
+        $this->responsable = $empleado;
     }
 
     public function setImporte($importe)
@@ -73,11 +71,6 @@ class Viaje
     public function setPasajeros($colPasajeros)
     {
         $this->pasajeros = $colPasajeros;
-    }
-
-    public function setResponsable($responsable)
-    {
-        $this->responsable = $responsable;
     }
 
     public function setMensajeOp($mensaje)
@@ -101,14 +94,14 @@ class Viaje
         return $this->vcantmaxpasajeros;
     }
 
-    public function getIdEmpresa()
+    public function getEmpresa()
     {
-        return $this->idempresa;
+        return $this->empresa;
     }
 
-    public function getNumeroEmpleado()
+    public function getResponsable()
     {
-        return $this->rnumeroempleado;
+        return $this->responsable;
     }
 
     public function getImporte()
@@ -131,11 +124,6 @@ class Viaje
         return $this->pasajeros;
     }
 
-    public function getResponsable()
-    {
-        return $this->responsable;
-    }
-
     public function getMensajeOp()
     {
         return $this->mensajeOp;
@@ -147,24 +135,23 @@ class Viaje
      * @param int $idviaje 
      * @param string $vdestino
      * @param int $vcantmaxpasajeros
-     * @param int $idempresa
-     * @param int $rnumeroempleado
+     * @param object $empresa
+     * @param object $responsable
      * @param float $vimporte
      * @param string $tipoAsiento
      * @param string $idayvuelta
      * @return void
      */
-    public function Cargar($idviaje, $vdestino, $vcantmaxpasajeros, $idempresa, $rnumeroempleado, $vimporte, $tipoAsiento, $idayvuelta)
+    public function Cargar($idviaje, $vdestino, $vcantmaxpasajeros, $empresa, $responsable, $vimporte, $tipoAsiento, $idayvuelta)
     {
         $this->idviaje = $idviaje;
         $this->vdestino = $vdestino;
         $this->vcantmaxpasajeros = $vcantmaxpasajeros;
-        $this->idempresa = $idempresa;
-        $this->rnumeroempleado = $rnumeroempleado;
+        $this->empresa = $empresa;
+        $this->responsable = $responsable;
         $this->vimporte = $vimporte;
         $this->tipoAsiento = $tipoAsiento;
         $this->idayvuelta = $idayvuelta;
-        $this->EncontrarEmpleado();
     }
 
     /**
@@ -172,31 +159,36 @@ class Viaje
      * @param int $id
      * @return bool
      */
-    public function Buscar($id = "", $destino = "")
+    public function Buscar($id, $condicion)
     {
         $bd = new Database();
+        $empresa = new Empresa();
+        $responsable = new ResponsableV();
+        $pasajero = new Pasajero();
+
         $resp = false;
         $consultaViaje = "SELECT * FROM viaje WHERE ";
-        if ($destino == null) {
+        if ($condicion == null) {
             $consultaViaje = $consultaViaje . 'idviaje = ' . $id;
         } else {
-            $consultaViaje = $consultaViaje . 'vdestino = "' . $destino . '"';
+            $consultaViaje = $consultaViaje . $condicion;
         }
         if ($bd->Start()) {
-            if ($bd->ExecQuery($consultaViaje) && $destino == null) {
+            if ($bd->ExecQuery($consultaViaje)) {
                 if ($regEnc = $bd->Register()) {
-                    $this->setIdViaje($id);
+                    $this->setIdViaje($regEnc['idviaje']);
                     $this->setDestino($regEnc['vdestino']);
                     $this->setCantMaxPasajeros($regEnc['vcantmaxpasajeros']);
-                    $this->setIdEmpresa($regEnc['idempresa']);
-                    $this->setNumeroEmpleado($regEnc['rnumeroempleado']);
+                    $empresa->Buscar($regEnc['idempresa']);
+                    $this->setEmpresa($empresa);
+                    $responsable->Buscar($regEnc['rnumeroempleado']);
+                    $this->setResponsable($responsable);
                     $this->setImporte($regEnc['vimporte']);
                     $this->setTipoAsiento($regEnc['tipoAsiento']);
                     $this->setIdaYVuelta($regEnc['idayvuelta']);
+                    $this->setPasajeros($pasajero->Listar(" idviaje = " . $this->getIdViaje()));
                     $resp = true;
                 }
-            } else if ($bd->ExecQuery($consultaViaje)) {
-                $resp = ($bd->Register() != null);
             } else {
                 $this->setMensajeOp($bd->getError());
             }
@@ -215,6 +207,9 @@ class Viaje
     {
         $arrViaje = null;
         $bd = new Database();
+        $empresa = new Empresa();
+        $responsable = new ResponsableV();
+
         $consultaV = "SELECT * FROM viaje ";
         if ($condicion != "") {
             $consultaV = $consultaV . ' where ' . $condicion;
@@ -222,20 +217,21 @@ class Viaje
         $consultaV .= " order by idviaje ";
         if ($bd->Start()) {
             if ($bd->ExecQuery($consultaV)) {
-                $arrViaje = array();
+                $arrViaje = [];
                 while ($regEnc = $bd->Register()) {
 
                     $idviaje = $regEnc['idviaje'];
                     $vdestino = $regEnc['vdestino'];
                     $vcantmaxpasajeros = $regEnc['vcantmaxpasajeros'];
-                    $idempresa = $regEnc['idempresa'];
-                    $rnumeroempleado = $regEnc['rnumeroempleado'];
+                    $empresa->Buscar($regEnc['idempresa']);
+                    $responsable->Buscar($regEnc['rnumeroempleado']);
                     $vimporte = $regEnc['vimporte'];
                     $tipoAsiento = $regEnc['tipoAsiento'];
                     $idayvuelta = $regEnc['idayvuelta'];
-
                     $viaje = new Viaje();
-                    $viaje->Cargar($idviaje, $vdestino, $vcantmaxpasajeros, $idempresa, $rnumeroempleado, $vimporte, $tipoAsiento, $idayvuelta);
+
+                    $viaje->Cargar($idviaje, $vdestino, $vcantmaxpasajeros, $empresa, $responsable, $vimporte, $tipoAsiento, $idayvuelta);
+
                     array_push($arrViaje, $viaje);
                 }
             } else {
@@ -254,14 +250,16 @@ class Viaje
     public function Insertar()
     {
         $bd = new Database();
+        $empresa = $this->getEmpresa();
+        $responsable = $this->getResponsable();
         $resp = false;
         // Por si el usuario especifica o no el id. Se crea uno con AUTO_INCREMENT en caso que no se especifique.
         if ($this->getIdviaje() == null) {
             $queryInsertar = "INSERT INTO viaje(vdestino, vcantmaxpasajeros, idempresa, rnumeroempleado, vimporte, tipoAsiento, idayvuelta) 
                     VALUES ('" . $this->getDestino() . "','" .
                 $this->getCantMaxPasajeros() .  "','" .
-                $this->getIdEmpresa() .  "','" .
-                $this->getNumeroEmpleado() .  "','" .
+                $empresa->getIdempresa() .  "','" .
+                $responsable->getNumeroEmpleado() .  "','" .
                 $this->getImporte() .  "','" .
                 $this->getTipoAsiento() .  "','" .
                 $this->getIdaYVuelta() .  "')";
@@ -270,8 +268,8 @@ class Viaje
                     VALUES ('" . $this->getIdViaje() . "','" .
                 $this->getDestino() . "','" .
                 $this->getCantMaxPasajeros() .  "','" .
-                $this->getIdEmpresa() .  "','" .
-                $this->getNumeroEmpleado() .  "','" .
+                $empresa->getIdempresa() .  "','" .
+                $responsable->getNumeroEmpleado() .  "','" .
                 $this->getImporte() .  "','" .
                 $this->getTipoAsiento() .  "','" .
                 $this->getIdaYVuelta() .  "')";
@@ -296,12 +294,14 @@ class Viaje
     {
         $resp = false;
         $bd = new Database();
+        $empresa = $this->getEmpresa();
+        $responsable = $this->getResponsable();
         if ($idAntiguo == null) {
             $queryModifica = "UPDATE viaje 
             SET vdestino = '" . $this->getDestino() .
                 "', vcantmaxpasajeros = '" . $this->getCantMaxPasajeros() .
-                "', idempresa = '" . $this->getIdEmpresa() .
-                "', rnumeroempleado = '" . $this->getNumeroEmpleado() .
+                "', idempresa = '" . $empresa->getIdempresa() .
+                "', rnumeroempleado = '" . $responsable->getNumeroEmpleado() .
                 "', vimporte = '" . $this->getImporte() .
                 "', tipoAsiento = '" . $this->getTipoAsiento() .
                 "', idayvuelta = '" . $this->getIdaYVuelta() .
@@ -312,8 +312,8 @@ class Viaje
             SET idviaje = '" . $this->getIdViaje() .
                 "', vdestino = '" . $this->getDestino() .
                 "', vcantmaxpasajeros = '" . $this->getCantMaxPasajeros() .
-                "', idempresa = '" . $this->getIdEmpresa() .
-                "', rnumeroempleado = '" . $this->getNumeroEmpleado() .
+                "', idempresa = '" . $empresa->getIdempresa() .
+                "', rnumeroempleado = '" . $responsable->getNumeroEmpleado() .
                 "', vimporte = '" . $this->getImporte() .
                 "', tipoAsiento = '" . $this->getTipoAsiento() .
                 "', idayvuelta = '" . $this->getIdaYVuelta() .
@@ -356,21 +356,11 @@ class Viaje
         return $resp;
     }
 
-    public function EncontrarEmpleado()
-    {
-        $responsable = new ResponsableV();
-        $numEmpleado = $this->getNumeroEmpleado();
-
-        $responsable->Buscar($numEmpleado);
-        $this->setResponsable($responsable);
-    }
-
-    // To String
     public function colPasajerosAString()
     {
         $objPasajero = new Pasajero();
 
-        $condicion = "idviaje = " . $this->getIdViaje();
+        $condicion = " idviaje = " . $this->getIdViaje();
         $colPasajeros = $objPasajero->Listar($condicion);
         $string = "\n";
 
@@ -381,13 +371,13 @@ class Viaje
         return $string;
     }
 
+    // To String
     public function __toString()
     {
         return "\nViaje: " . $this->getIdViaje() .
             "\nDestino: " . $this->getDestino() .
             "\nCantidad Maxima de Pasajeros: " . $this->getCantMaxPasajeros() .
-            "\nID Empresa: " . $this->getIdEmpresa() .
-            "\nNumero Empleado (Responsable): " . $this->getNumeroEmpleado() .
+            "\nID Empresa: " . $this->getEmpresa() .
             "\nImporte: " . $this->getImporte() .
             "\nTipo Asiento: " . $this->getTipoAsiento() .
             "\nIda y Vuelta: " . $this->getIdaYVuelta() .

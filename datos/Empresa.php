@@ -169,18 +169,11 @@ class Empresa
     {
         $resp = false;
         $bd = new Database();
-        if ($idAntiguo == null) {
-            $queryModifica = "UPDATE empresa 
+        $queryModifica = "UPDATE empresa 
             SET enombre = '" . $this->getEnombre() .
-                "', edireccion = '" . $this->getEdireccion() .
-                "' WHERE idempresa = " . $this->getIdempresa();
-        } else {
-            $queryModifica = "UPDATE empresa 
-            SET idempresa = " . $this->getIdempresa() .
-                ", enombre = '" . $this->getEnombre() .
-                "', edireccion = '" . $this->getEdireccion() .
-                "' WHERE idempresa = " . $idAntiguo;
-        }
+            "', edireccion = '" . $this->getEdireccion() .
+            "' WHERE idempresa = " . $this->getIdempresa();
+
         if ($bd->Start()) {
             if ($bd->ExecQuery($queryModifica)) {
                 $resp =  true;

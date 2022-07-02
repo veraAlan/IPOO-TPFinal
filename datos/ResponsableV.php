@@ -192,20 +192,12 @@ class ResponsableV
     {
         $resp = false;
         $bd = new Database();
-        if ($idAntiguo == null) {
-            $queryModifica = "UPDATE responsable 
+        $queryModifica = "UPDATE responsable 
             SET rnombre = '" . $this->getNombre() .
-                "', rapellido = '" . $this->getApellido() .
-                "', rnumerolicencia = '" . $this->getLicencia() .
-                "' WHERE rnumeroempleado = " . $this->getNumeroEmpleado();
-        } else {
-            $queryModifica = "UPDATE responsable 
-            SET rnumeroempleado = " . $this->getNumeroEmpleado() .
-                ", rnombre = '" . $this->getNombre() .
-                "', rapellido = '" . $this->getApellido() .
-                "', rnumerolicencia = '" . $this->getLicencia() .
-                "' WHERE rnumeroempleado = " . $idAntiguo;
-        }
+            "', rapellido = '" . $this->getApellido() .
+            "', rnumerolicencia = '" . $this->getLicencia() .
+            "' WHERE rnumeroempleado = " . $this->getNumeroEmpleado();
+
         if ($bd->Start()) {
             if ($bd->ExecQuery($queryModifica)) {
                 $resp =  true;

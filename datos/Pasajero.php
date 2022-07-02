@@ -5,7 +5,7 @@ class Pasajero
     private $papellido;
     private $rdocumento;
     private $ptelefono;
-    private $idviaje;
+    private $viaje;
 
     /**
      * Constructor de objeto pasajero.
@@ -16,7 +16,7 @@ class Pasajero
         $this->papellido = "";
         $this->rdocumento = "";
         $this->ptelefono = 0;
-        $this->idviaje = null;
+        $this->viaje = null;
     }
 
     // Setter
@@ -40,9 +40,9 @@ class Pasajero
         $this->ptelefono = $ptelefono;
     }
 
-    public function setIdViaje($id)
+    public function setViaje($id)
     {
-        $this->idviaje = $id;
+        $this->viaje = $id;
     }
 
     public function setMensajeOp($mensaje)
@@ -73,7 +73,7 @@ class Pasajero
 
     public function getIdViaje()
     {
-        return $this->idviaje;
+        return $this->viaje;
     }
 
     public function getMensajeOp()
@@ -88,16 +88,16 @@ class Pasajero
      * @param string $apellido
      * @param int $documento
      * @param int $telefono
-     * @param int $idviaje
+     * @param int $viaje
      * @return void
      */
-    public function Cargar($nombre, $apellido, $documento, $telefono, $idviaje)
+    public function Cargar($nombre, $apellido, $documento, $telefono, $viaje)
     {
         $this->pnombre = $nombre;
         $this->papellido = $apellido;
         $this->rdocumento = $documento;
         $this->ptelefono = $telefono;
-        $this->idviaje = $idviaje;
+        $this->viaje = $viaje;
     }
 
     /**
@@ -108,6 +108,8 @@ class Pasajero
     public function Buscar($dni)
     {
         $bd = new Database();
+        $viaje = new Viaje();
+
         $consultaPasajero = "SELECT * FROM pasajero WHERE rdocumento = " . $dni;
         $resp = false;
 
@@ -118,7 +120,7 @@ class Pasajero
                     $this->setNombre($row2['pnombre']);
                     $this->setApellido($row2['papellido']);
                     $this->setTelefono($row2['ptelefono']);
-                    $this->setIdViaje($row2['idviaje']);
+                    $this->setViaje($viaje->Buscar($row2['idviaje'], null));
                     $resp = true;
                 }
             } else {
@@ -135,15 +137,11 @@ class Pasajero
      * @param string $condicion
      * @return array
      */
-    public function Listar($condicion = "")
+    public function Listar($condicion)
     {
         $arrPasajeros = null;
         $bd = new Database();
-        $consultaP = "SELECT * FROM pasajero ";
-        if ($condicion != "") {
-            $consultaP = $consultaP . ' where ' . $condicion;
-        }
-        $consultaP .= " order by rdocumento ";
+        $consultaP = "SELECT * FROM pasajero WHERE " . $condicion . ";";
         if ($bd->Start()) {
             if ($bd->ExecQuery($consultaP)) {
                 $arrPasajeros = array();
@@ -175,6 +173,7 @@ class Pasajero
     public function Insertar()
     {
         $bd = new Database();
+        $viaje = $this->getIdViaje();
         $resp = false;
         if ($bd->Start()) {
             $queryInsertar = "INSERT INTO pasajero(rdocumento, pnombre, papellido, ptelefono, idviaje) 
@@ -182,7 +181,7 @@ class Pasajero
                 $this->getNombre() . "','" .
                 $this->getApellido() . "','" .
                 $this->getTelefono() . "','" .
-                $this->getIdViaje() . "')";
+                $viaje->getIdviaje() . "')";
             if ($bd->ExecQuery($queryInsertar)) {
                 $resp = true;
             } else {
