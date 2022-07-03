@@ -46,23 +46,17 @@ function ingresarEmpresa()
     $nombre = readline("Nombre de la empresa: ");
     $dir = readline("Direccion de la empresa: ");
 
-    if ($id != null) {
-        if (!$empresa->Buscar($id)) {
-            $empresa->Cargar($id, $nombre, $dir);
-
-            $respuesta = $empresa->Insertar();
-            if ($respuesta == true) {
-                echo "\n\t   La empresa fue ingresada en la BD.\n" .
-                    "\t========================================\n";
-            } else {
-                echo $empresa->getMensajeOp();
-            }
-        } else {
-            echo "\nYa existe una empresa con ese ID.\n";
+    // Finds next id that is free for a new entry.
+    // Does auto increment even if id of higher entry is >2 than last entry of that one.
+    if ($id == null) {
+        $id = 1;
+        while ($empresa->Buscar($id)) {
+            $id++;
         }
-    } else {
-        $empresa->setEnombre($nombre);
-        $empresa->setEdireccion($dir);
+    }
+
+    if (!$empresa->Buscar($id)) {
+        $empresa->Cargar($id, $nombre, $dir);
 
         $respuesta = $empresa->Insertar();
         if ($respuesta == true) {
@@ -71,6 +65,8 @@ function ingresarEmpresa()
         } else {
             echo $empresa->getMensajeOp();
         }
+    } else {
+        echo "\nYa existe una empresa con ese ID.\n";
     }
 }
 
@@ -184,38 +180,17 @@ function ingresarViaje()
     $tipoAsiento = readline("Tipo de asiento (Primera clase o no, semicama o cama): ");
     $idayvuelta = readline("Ida y vuelta? ");
 
-    if ($id != null) {
-        if (!$viaje->Buscar($id, "")) {
-            if (!$viaje->Buscar(null,  "vdestino = '" . $destino . "'")) {
-                if ($empresa->Buscar($idempresa) && $responsable->Buscar($nempleado)) {
-                    $viaje->Cargar($id, $destino, $cantmax, $empresa, $responsable, $importe, $tipoAsiento, $idayvuelta);
-
-                    $respuesta = $viaje->Insertar();
-                    if ($respuesta == true) {
-                        echo "\n\t   El viaje fue ingresado en la BD.\n" .
-                            "\t======================================\n";
-                    } else {
-                        echo $viaje->getMensajeOp();
-                    }
-                } else {
-                    echo "\nNo existe la empresa o responsable a cargo.\n";
-                }
-            } else {
-                echo "\nExiste un viaje al destino.\n";
-            }
-        } else {
-            echo "\nYa existe un viaje con ese ID.\n";
+    if ($id == null) {
+        $id = 1;
+        while ($viaje->Buscar($id, null)) {
+            $id++;
         }
-    } else {
-        if ($empresa->Buscar($idempresa) && $responsable->Buscar($nempleado)) {
-            if (!$viaje->Buscar(null, "vdestino = '" . $destino . "'")) {
-                $viaje->setDestino($destino);
-                $viaje->setCantMaxPasajeros($cantmax);
-                $viaje->setEmpresa($empresa);
-                $viaje->setResponsable($responsable);
-                $viaje->setImporte($importe);
-                $viaje->setTipoAsiento($tipoAsiento);
-                $viaje->setIdaYVuelta($idayvuelta);
+    }
+
+    if (!$viaje->Buscar($id, "")) {
+        if (!$viaje->Buscar(null,  "vdestino = '" . $destino . "'")) {
+            if ($empresa->Buscar($idempresa) && $responsable->Buscar($nempleado)) {
+                $viaje->Cargar($id, $destino, $cantmax, $empresa, $responsable, $importe, $tipoAsiento, $idayvuelta);
 
                 $respuesta = $viaje->Insertar();
                 if ($respuesta == true) {
@@ -225,11 +200,13 @@ function ingresarViaje()
                     echo $viaje->getMensajeOp();
                 }
             } else {
-                echo "\nExiste un viaje al destino.\n";
+                echo "\nNo existe la empresa o responsable a cargo.\n";
             }
         } else {
-            echo "\nNo existe la empresa o responsable a cargo.\n";
+            echo "\nExiste un viaje al destino.\n";
         }
+    } else {
+        echo "\nYa existe un viaje con ese ID.\n";
     }
 }
 
@@ -337,24 +314,15 @@ function ingresarResponsable()
     $nombre = readline("Nombre del responsable: ");
     $apellido = readline("Apellido del responsable: ");
 
-    if ($id != null) {
-        if (!$responsable->Buscar($id)) {
-            $responsable->Cargar($id, $numLic, $nombre, $apellido);
-
-            $respuesta = $responsable->Insertar();
-            if ($respuesta) {
-                echo "\n\t   El responsable fue ingresada en la BD.\n" .
-                    "\t========================================\n";
-            } else {
-                echo $responsable->getMensajeOp();
-            }
-        } else {
-            echo "\nYa existe un responsable con ese ID.\n";
+    if ($id == null) {
+        $id = 1;
+        while ($responsable->Buscar($id)) {
+            $id++;
         }
-    } else {
-        $responsable->setLicencia($numLic);
-        $responsable->setNombre($nombre);
-        $responsable->setApellido($apellido);
+    }
+
+    if (!$responsable->Buscar($id)) {
+        $responsable->Cargar($id, $numLic, $nombre, $apellido);
 
         $respuesta = $responsable->Insertar();
         if ($respuesta) {
@@ -363,6 +331,8 @@ function ingresarResponsable()
         } else {
             echo $responsable->getMensajeOp();
         }
+    } else {
+        echo "\nYa existe un responsable con ese ID.\n";
     }
 }
 
@@ -654,16 +624,6 @@ function opciones()
             break;
         case 16:
             mostrarPasajero();
-            break;
-        case 17:
-            $empresa = new Empresa();
-            $empresa->Buscar(5);
-            $responsable = new ResponsableV();
-            $responsable->Buscar(5);
-            $viaje = new Viaje();
-            $viaje->setEmpresa($empresa);
-            $viaje->setResponsable($responsable);
-            $viaje->Insertar();
             break;
         default:
             echo "Opcion incorrecta. Tiene que ser un numero entre 1 y 16.";
