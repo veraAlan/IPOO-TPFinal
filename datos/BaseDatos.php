@@ -18,7 +18,7 @@ class Database
         $this->HOSTNAME = "localhost"; // Localhost
         $this->DATABASE = "bdviajes";
         $this->USER = "root";
-        $this->PASSWORD = "FF0734Casa35"; // Root Password / Contrasenia de usuario Root
+        $this->PASSWORD = ""; // Root Password / Contrasenia de usuario Root
         $this->QUERY = "";
         $this->ERROR = "";
     }
