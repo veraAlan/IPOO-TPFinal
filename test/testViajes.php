@@ -488,27 +488,18 @@ function modificarPasajero()
         $respuesta = $pasajero->Buscar($dni, null);
         if ($respuesta) {
             echo "Ingrese los nuevos datos.\n";
-            $nuevodni = readline("Documento de pasajero: ");
             $nombre = readline("Nombre: ");
             $apellido = readline("Apellido: ");
             $telefono = readline("Telefono: ");
             $idviaje = readline("Id del viaje: ");
 
             if ($viaje->Buscar($idviaje, null)) {
-                if ($nuevodni != null) {
-                    if (!$pasajero->Buscar($nuevodni, null)) {
-                        $pasajero->Cargar($nombre, $apellido, $nuevodni, $telefono, $viaje);
-                    } else {
-                        echo "Ya existe un pasajero con ese documento.\n";
-                    }
-                } else {
-                    $pasajero->setNombre($nombre);
-                    $pasajero->setApellido($apellido);
-                    $pasajero->setTelefono($telefono);
-                    $pasajero->setViaje($viaje);
-                }
+                $pasajero->setNombre($nombre);
+                $pasajero->setApellido($apellido);
+                $pasajero->setTelefono($telefono);
+                $pasajero->setViaje($viaje);
 
-                $respuesta = $pasajero->Modificar($dni);
+                $respuesta = $pasajero->Modificar(null);
                 if ($respuesta) {
                     echo "\n\t   El pasajero fue modificado correctamente.\n" .
                         "\t==============================================\n";

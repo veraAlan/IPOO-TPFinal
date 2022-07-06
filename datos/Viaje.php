@@ -290,35 +290,21 @@ class Viaje
      * Ejecuta los cambios en la tabla de viajes.
      * @return bool
      */
-    public function Modificar($idAntiguo = "")
+    public function Modificar()
     {
         $resp = false;
         $bd = new Database();
         $empresa = $this->getEmpresa();
         $responsable = $this->getResponsable();
-        if ($idAntiguo == null) {
-            $queryModifica = "UPDATE viaje 
+        $queryModifica = "UPDATE viaje 
             SET vdestino = '" . $this->getDestino() .
-                "', vcantmaxpasajeros = '" . $this->getCantMaxPasajeros() .
-                "', idempresa = '" . $empresa->getIdempresa() .
-                "', rnumeroempleado = '" . $responsable->getNumeroEmpleado() .
-                "', vimporte = '" . $this->getImporte() .
-                "', tipoAsiento = '" . $this->getTipoAsiento() .
-                "', idayvuelta = '" . $this->getIdaYVuelta() .
-                "' WHERE idviaje = " . $this->getIdViaje();
-        } else {
-            $queryModifica = "";
-            $queryModifica = "UPDATE viaje 
-            SET idviaje = '" . $this->getIdViaje() .
-                "', vdestino = '" . $this->getDestino() .
-                "', vcantmaxpasajeros = '" . $this->getCantMaxPasajeros() .
-                "', idempresa = '" . $empresa->getIdempresa() .
-                "', rnumeroempleado = '" . $responsable->getNumeroEmpleado() .
-                "', vimporte = '" . $this->getImporte() .
-                "', tipoAsiento = '" . $this->getTipoAsiento() .
-                "', idayvuelta = '" . $this->getIdaYVuelta() .
-                "' WHERE idviaje = " . $idAntiguo;
-        }
+            "', vcantmaxpasajeros = '" . $this->getCantMaxPasajeros() .
+            "', idempresa = '" . $empresa->getIdempresa() .
+            "', rnumeroempleado = '" . $responsable->getNumeroEmpleado() .
+            "', vimporte = '" . $this->getImporte() .
+            "', tipoAsiento = '" . $this->getTipoAsiento() .
+            "', idayvuelta = '" . $this->getIdaYVuelta() .
+            "' WHERE idviaje = " . $this->getIdViaje();
         if ($bd->Start()) {
             if ($bd->ExecQuery($queryModifica)) {
                 $resp =  true;

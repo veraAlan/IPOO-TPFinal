@@ -202,24 +202,15 @@ class Pasajero
      * Ejecuta los cambios en la tabla de pasajero.
      * @return bool
      */
-    public function Modificar($dniAntiguo = "", $condicion = "")
+    public function Modificar($condicion)
     {
         $resp = false;
         $bd = new Database();
-        if ($dniAntiguo == null) {
-            $queryModifica = "UPDATE pasajero 
+        $queryModifica = "UPDATE pasajero 
             SET pnombre = '" . $this->getNombre() .
-                "', papellido = '" . $this->getApellido() .
-                "', ptelefono = '" . $this->getTelefono() .
-                "' WHERE rdocumento = " . $this->getDocumento();
-        } else {
-            $queryModifica = "UPDATE pasajero 
-            SET rdocumento = " .  $this->getDocumento() .
-                ", pnombre = '" . $this->getNombre() .
-                "', papellido = '" . $this->getApellido() .
-                "', ptelefono = '" . $this->getTelefono() .
-                "' WHERE rdocumento = " . $dniAntiguo;
-        }
+            "', papellido = '" . $this->getApellido() .
+            "', ptelefono = '" . $this->getTelefono() .
+            "' WHERE rdocumento = " . $this->getDocumento();
 
         if ($condicion != null) {
             $queryModifica = $condicion;

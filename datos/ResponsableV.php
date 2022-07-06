@@ -188,7 +188,7 @@ class ResponsableV
      * Ejecuta los cambios en la tabla de responsable.
      * @return bool
      */
-    public function Modificar($idAntiguo = "")
+    public function Modificar()
     {
         $resp = false;
         $bd = new Database();
