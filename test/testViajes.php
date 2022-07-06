@@ -258,17 +258,32 @@ function modificarViaje()
 function eliminarViaje()
 {
     $viaje = new Viaje();
+    $pasajero = new Pasajero();
+    $pasajeroEncontrado = false;
 
     $id = readline("Ingrese el id del viaje a eliminar: ");
     $respuesta = $viaje->Buscar($id, null);
 
     if ($respuesta) {
-        $respuesta = $viaje->Eliminar();
-        if ($respuesta) {
-            echo "\n\t   El viaje fue eliminado de la BD.\n" .
-                "\t=========================================\n";
+        if ($pasajero->Buscar(null, "idviaje = " . $id)) {
+            $eliminarViaje = readline("El viaje tiene pasajeros. Quiere eliminar el viaje junto a los pasajeros? (s/n) ");
+            if ($eliminarViaje == "s") {
+                $pasajeroEncontrado = false;
+            } else {
+                $pasajeroEncontrado = true;
+            }
+        }
+
+        if (!$pasajeroEncontrado) {
+            $respuesta = $viaje->Eliminar();
+            if ($respuesta) {
+                echo "\n\t   El viaje fue eliminado de la BD.\n" .
+                    "\t=========================================\n";
+            } else {
+                echo "\nNo se pudo eliminar el viaje.\n";
+            }
         } else {
-            echo "\nNo se pudo eliminar el viaje.\n";
+            echo "\nNo se puede eliminar el viaje y mantener los pasajeros en la DB.\n";
         }
     } else {
         echo "No se pudo encontrar el viaje con id = " . $id . ".\n";
@@ -445,7 +460,7 @@ function ingresarPasajero()
     $idviaje = readline("Id del viaje: ");
 
     if ($viaje->Buscar($idviaje, null)) {
-        if (!$pasajero->Buscar($dni)) {
+        if (!$pasajero->Buscar($dni, null)) {
             $pasajero->Cargar($nombre, $apellido, $dni, $telefono, $viaje);
 
             $respuesta = $pasajero->Insertar();
@@ -470,7 +485,7 @@ function modificarPasajero()
 
     $dni = readline("Ingrese el documento del pasajero a modificar: ");
     if (is_numeric($dni)) {
-        $respuesta = $pasajero->Buscar($dni);
+        $respuesta = $pasajero->Buscar($dni, null);
         if ($respuesta) {
             echo "Ingrese los nuevos datos.\n";
             $nuevodni = readline("Documento de pasajero: ");
@@ -481,7 +496,7 @@ function modificarPasajero()
 
             if ($viaje->Buscar($idviaje, null)) {
                 if ($nuevodni != null) {
-                    if (!$pasajero->Buscar($nuevodni)) {
+                    if (!$pasajero->Buscar($nuevodni, null)) {
                         $pasajero->Cargar($nombre, $apellido, $nuevodni, $telefono, $viaje);
                     } else {
                         echo "Ya existe un pasajero con ese documento.\n";
@@ -519,7 +534,7 @@ function eliminarPasajero()
     $dni = readline("Ingrese el documento del pasajero a eliminar: ");
 
     if (is_numeric($dni)) {
-        $respuesta = $pasajero->Buscar($dni);
+        $respuesta = $pasajero->Buscar($dni, null);
         if ($respuesta) {
             $respuesta = $pasajero->Eliminar();
             if ($respuesta) {
@@ -552,9 +567,9 @@ function mostrarPasajero()
             echo "-------------------------------------------------------";
         }
     } else {
-        $numE = readline("Ingrese documento del pasajero: ");
-        if (is_numeric($numE)) {
-            $respuesta = $pasajero->Buscar($numE);
+        $dniP = readline("Ingrese documento del pasajero: ");
+        if (is_numeric($dniP)) {
+            $respuesta = $pasajero->Buscar($dniP, null);
             if ($respuesta) {
                 echo $pasajero;
             } else {

@@ -105,13 +105,18 @@ class Pasajero
      * @param int $dni
      * @return bool
      */
-    public function Buscar($dni)
+    public function Buscar($dni, $condicion)
     {
         $bd = new Database();
         $viaje = new Viaje();
 
-        $consultaPasajero = "SELECT * FROM pasajero WHERE rdocumento = " . $dni;
+        $consultaPasajero = "SELECT * FROM pasajero WHERE ";
         $resp = false;
+        if ($condicion == null) {
+            $consultaPasajero .= 'rdocumento = ' . $dni;
+        } else {
+            $consultaPasajero .= $condicion;
+        }
 
         if ($bd->Start()) {
             if ($bd->ExecQuery($consultaPasajero)) {

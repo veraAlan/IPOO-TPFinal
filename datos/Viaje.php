@@ -169,9 +169,9 @@ class Viaje
         $resp = false;
         $consultaViaje = "SELECT * FROM viaje WHERE ";
         if ($condicion == null) {
-            $consultaViaje = $consultaViaje . 'idviaje = ' . $id;
+            $consultaViaje .= 'idviaje = ' . $id;
         } else {
-            $consultaViaje = $consultaViaje . $condicion;
+            $consultaViaje .= $condicion;
         }
         if ($bd->Start()) {
             if ($bd->ExecQuery($consultaViaje)) {
