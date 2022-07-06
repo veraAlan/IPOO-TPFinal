@@ -253,27 +253,15 @@ class Viaje
         $empresa = $this->getEmpresa();
         $responsable = $this->getResponsable();
         $resp = false;
-        // Por si el usuario especifica o no el id. Se crea uno con AUTO_INCREMENT en caso que no se especifique.
-        if ($this->getIdviaje() == null) {
-            $queryInsertar = "INSERT INTO viaje(vdestino, vcantmaxpasajeros, idempresa, rnumeroempleado, vimporte, tipoAsiento, idayvuelta) 
-                    VALUES ('" . $this->getDestino() . "','" .
-                $this->getCantMaxPasajeros() .  "','" .
-                $empresa->getIdempresa() .  "','" .
-                $responsable->getNumeroEmpleado() .  "','" .
-                $this->getImporte() .  "','" .
-                $this->getTipoAsiento() .  "','" .
-                $this->getIdaYVuelta() .  "')";
-        } else {
-            $queryInsertar = "INSERT INTO viaje(idviaje, vdestino, vcantmaxpasajeros, idempresa, rnumeroempleado, vimporte, tipoAsiento, idayvuelta)
+        $queryInsertar = "INSERT INTO viaje(idviaje, vdestino, vcantmaxpasajeros, idempresa, rnumeroempleado, vimporte, tipoAsiento, idayvuelta)
                     VALUES ('" . $this->getIdViaje() . "','" .
-                $this->getDestino() . "','" .
-                $this->getCantMaxPasajeros() .  "','" .
-                $empresa->getIdempresa() .  "','" .
-                $responsable->getNumeroEmpleado() .  "','" .
-                $this->getImporte() .  "','" .
-                $this->getTipoAsiento() .  "','" .
-                $this->getIdaYVuelta() .  "')";
-        }
+            $this->getDestino() . "','" .
+            $this->getCantMaxPasajeros() .  "','" .
+            $empresa->getIdempresa() .  "','" .
+            $responsable->getNumeroEmpleado() .  "','" .
+            $this->getImporte() .  "','" .
+            $this->getTipoAsiento() .  "','" .
+            $this->getIdaYVuelta() .  "')";
         if ($bd->Start()) {
             if ($bd->ExecQuery($queryInsertar)) {
                 $resp = true;
